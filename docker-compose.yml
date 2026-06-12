@@ -1,0 +1,115 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: transactions
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d transactions"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    command: ["api"]
+    environment: &app_env
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/transactions
+      SYNC_DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/transactions
+      REDIS_URL: redis://redis:6379/0
+      UPLOAD_DIR: /data/uploads
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  processing_worker:
+    build: ./backend
+    command: ["processing_worker"]
+    environment:
+      <<: *app_env
+      SKIP_MIGRATIONS: "1"
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  llm_worker:
+    build: ./backend
+    command: ["llm_worker"]
+    environment:
+      <<: *app_env
+      SKIP_MIGRATIONS: "1"
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  reporting_worker:
+    build: ./backend
+    command: ["reporting_worker"]
+    environment:
+      <<: *app_env
+      SKIP_MIGRATIONS: "1"
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  flower:
+    build: ./backend
+    command: ["flower"]
+    environment:
+      <<: *app_env
+      SKIP_MIGRATIONS: "1"
+    ports:
+      - "5555:5555"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  uploads:
