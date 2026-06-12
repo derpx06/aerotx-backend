@@ -1,0 +1,14 @@
+[run]
+source = app
+branch = true
+omit =
+    app/main.py
+    app/core/celery_app.py
+    app/core/database.py
+    app/tasks/*
+
+[report]
+show_missing = true
+skip_covered = true
+fail_under = 80
+
