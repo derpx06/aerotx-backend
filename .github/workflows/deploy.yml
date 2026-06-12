@@ -1,0 +1,128 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write # Required for requesting the JWT OIDC token
+  contents: read  # Required for checkout
+
+jobs:
+  deploy:
+    name: Deploy to Production AWS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Lint & Test Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest pytest-asyncio pytest-cov -r backend/requirements.txt
+
+      - name: Run Quality Gate Checks (Lint & Format)
+        run: |
+          ruff check backend/
+          ruff format --check backend/
+
+      - name: Run Unit Tests
+        run: cd backend && pytest
+
+      - name: Configure AWS Credentials (OIDC - Secure Role Assume)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag, and Push Image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build multi-stage production container image
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./backend
+          
+          # Push both SHA and latest tags
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Run Alembic Database Migrations (ECS Run-Task)
+        env:
+          CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
+          TASK_FAMILY: ${{ secrets.PROJECT_NAME }}-api
+          SUBNETS: ${{ secrets.PUBLIC_SUBNET_IDS }}
+          SECURITY_GROUPS: ${{ secrets.ECS_TASK_SG_ID }}
+        run: |
+          echo "Starting ECS Task to run database migrations..."
+          
+          # Run one-off task using the new docker image tag to execute migrations
+          TASK_ARN=$(aws ecs run-task \
+            --cluster $CLUSTER_NAME \
+            --task-definition $TASK_FAMILY \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SECURITY_GROUPS],assignPublicIp=ENABLED}" \
+            --overrides '{"containerOverrides": [{"name": "api", "command": ["alembic", "upgrade", "head"]}]}' \
+            --query "tasks[0].taskArn" \
+            --output text)
+            
+          if [ "$TASK_ARN" = "None" ] || [ -z "$TASK_ARN" ]; then
+            echo "Failed to start database migration task!"
+            exit 1
+          fi
+          
+          echo "Migration task started. ARN: $TASK_ARN"
+          echo "Waiting for migration task to complete..."
+          
+          # Wait for task completion
+          aws ecs wait tasks-stopped --cluster $CLUSTER_NAME --tasks $TASK_ARN
+          
+          # Inspect exit code of the migration command
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster $CLUSTER_NAME \
+            --tasks $TASK_ARN \
+            --query "tasks[0].containers[0].exitCode" \
+            --output text)
+            
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Alembic migrations failed with exit code $EXIT_CODE!"
+            exit 1
+          fi
+          
+          echo "Database migrations completed successfully."
+
+      - name: Deploy API Service to ECS Fargate
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: task-definitions/api.json
+          service: ${{ secrets.PROJECT_NAME }}-api
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Deploy Worker Services to ECS Fargate
+        run: |
+          echo "Updating Celery workers to use latest ECR image tag..."
+          for QUEUE in processing llm reporting; do
+            SERVICE_NAME="${{ secrets.PROJECT_NAME }}-worker-$QUEUE"
+            echo "Updating Service: $SERVICE_NAME"
+            aws ecs update-service \
+              --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+              --service $SERVICE_NAME \
+              --force-new-deployment
+          done
