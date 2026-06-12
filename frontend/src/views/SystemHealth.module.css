@@ -1,0 +1,388 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Overall Status Banner */
+.statusBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bannerOk {
+  background: rgba(16, 185, 129, 0.03);
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+.bannerDegraded {
+  background: rgba(239, 68, 68, 0.03);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.bannerLoading {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.bannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.statusIndicatorDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotHealthy {
+  background-color: var(--success);
+  box-shadow: 0 0 10px var(--success);
+}
+
+.dotError {
+  background-color: var(--danger);
+  box-shadow: 0 0 10px var(--danger);
+}
+
+.bannerTitle {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.bannerTimestamp {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: block;
+}
+
+.bannerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.latencyBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.latencyValue {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+}
+
+.latencyLabel {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.refreshControlBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.refreshControlBtn:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.refreshControlBtn:disabled {
+  opacity: 0.6;
+}
+
+/* Section Header */
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionHeader h4 {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.sectionHeader p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Services Grid */
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.serviceCard {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--glass-shadow);
+  transition: transform var(--transition-fast);
+}
+
+.serviceCard:hover {
+  transform: translateY(-2px);
+}
+
+.cardDown {
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.serviceIconWrapper {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+}
+
+.serviceDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.serviceName {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: white;
+}
+
+.serviceDesc {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.serviceStatusLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  align-self: flex-start;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.statusUp {
+  background-color: rgba(16, 185, 129, 0.08);
+  color: var(--success);
+}
+
+.statusDown {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+}
+
+.statusUnknown {
+  background-color: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+}
+
+/* Metrics Table/Row style */
+.metricsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.metricCard {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metricLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.metricValue {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+}
+
+.metricSub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+/* Incidents Logs Terminal */
+.logsSection {
+  background: rgba(8, 12, 22, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.logsHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.terminalIcon {
+  color: var(--primary-hover);
+}
+
+.logsContainer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.logTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.logTable th {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.logTable td {
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.01);
+}
+
+.logRow:hover {
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.logTime {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.logBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.badgeCrit {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.badgeWarn {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+}
+
+.badgeInfo {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.logComponent {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--primary-hover);
+}
+
+.logMessage {
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .servicesGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .metricsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .servicesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .servicesGrid {
+    grid-template-columns: 1fr;
+  }
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,153 @@
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  margin: 32px 0;
+  padding: 0 16px;
+}
+
+.timelineLine {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  right: 32px;
+  height: 2px;
+  background-color: var(--border-color);
+  z-index: 1;
+}
+
+.timelineProgress {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--success));
+  z-index: 1;
+  transition: width var(--transition-slow);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  text-align: center;
+}
+
+.node {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all var(--transition-normal);
+  cursor: default;
+}
+
+.nodeCompleted {
+  background-color: var(--success-glow);
+  border-color: var(--success);
+  color: var(--success);
+  box-shadow: 0 0 12px var(--success-glow);
+}
+
+.nodeActive {
+  background-color: var(--primary-glow);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+  box-shadow: 0 0 16px var(--primary-glow);
+  animation: pulseNode 1.5s infinite ease-in-out;
+}
+
+.nodeFailed {
+  background-color: var(--danger-glow);
+  border-color: var(--danger);
+  color: var(--danger);
+  box-shadow: 0 0 16px var(--danger-glow);
+}
+
+.stepTitle {
+  margin-top: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.stepTitleActive {
+  color: var(--primary-hover);
+}
+
+.stepTitleCompleted {
+  color: var(--success);
+}
+
+.stepTitleFailed {
+  color: var(--danger);
+}
+
+.stepDesc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  max-width: 120px;
+}
+
+@keyframes pulseNode {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px var(--primary-glow);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px var(--primary-glow);
+  }
+}
+
+@media (max-width: 900px) {
+  .timeline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding-left: 24px;
+  }
+
+  .timelineLine {
+    top: 24px;
+    bottom: 24px;
+    left: 48px;
+    width: 2px;
+    height: calc(100% - 48px);
+  }
+
+  .timelineProgress {
+    top: 24px;
+    left: 48px;
+    width: 2px;
+    height: 0; /* Updated via React style dynamically */
+  }
+
+  .step {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .stepTitle {
+    margin-top: 0;
+  }
+}

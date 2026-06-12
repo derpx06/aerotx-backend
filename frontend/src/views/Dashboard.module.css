@@ -1,0 +1,612 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 100%;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+}
+
+/* Error Banner */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.82rem;
+}
+
+/* Control Room Header */
+.controlHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.controlTitle {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.4px;
+}
+
+.controlSub {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.refreshControlBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.refreshControlBtn:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.statBox {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.statValue {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 2px 0;
+}
+
+.statFooter {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+/* Active Stepper Card */
+.activeStepperCard {
+  background: rgba(8, 12, 22, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stepperHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stepperTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+}
+
+.pulseGlow {
+  color: var(--primary-hover);
+  animation: pulseColor 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulseColor {
+  0% { opacity: 0.5; filter: drop-shadow(0 0 1px var(--primary)); }
+  100% { opacity: 1; filter: drop-shadow(0 0 6px var(--primary)); }
+}
+
+.activeJobStatus {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.pipelineSteps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow-x: auto;
+  padding: 6px 0;
+}
+
+.stepWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background-color: var(--bg-sidebar);
+  transition: all var(--transition-normal);
+}
+
+.circleCompleted {
+  background-color: rgba(16, 185, 129, 0.08);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.circleActive {
+  background-color: rgba(99, 102, 241, 0.08);
+  border-color: var(--primary-hover);
+  color: var(--primary-hover);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
+}
+
+.stepInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stepDesc {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+.stepArrow {
+  color: var(--text-muted);
+  margin: 0 10px;
+}
+
+/* Split Layout */
+.dashboardSplitGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.splitMainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.splitSideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Section Card */
+.sectionCard {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--glass-shadow);
+}
+
+.cardHeaderWithFilter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.cardHeaderWithFilter h3 {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: white;
+}
+
+.pillGroup {
+  display: flex;
+  gap: 6px;
+}
+
+.filterPill {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.filterPill:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.filterPillActive {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: var(--primary-hover);
+}
+
+/* Empty State */
+.emptyTableState {
+  text-align: center;
+  padding: 44px 20px;
+  color: var(--text-muted);
+}
+
+.emptyTableState h4 {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin: 10px 0 4px 0;
+}
+
+.emptyTableState p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  max-width: 320px;
+  margin: 0 auto 16px auto;
+  line-height: 1.4;
+}
+
+.emptyActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.primaryBtn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.primaryBtn:hover {
+  background: var(--primary-hover);
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Table Responsive */
+.tableResponsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.jobTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.jobTable th {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px 12px;
+}
+
+.jobTable td {
+  padding: 12px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.jobRow {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.jobRow:hover {
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.jobFileCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jobFilename {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.jobUuid {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.durationCode {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badgeSuccess {
+  background-color: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.badgeDanger {
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+.badgeActive {
+  background-color: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  color: var(--primary-hover);
+}
+
+/* Charts Grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Side Column: Activity Feed */
+.feedHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  color: var(--primary-hover);
+}
+
+.feedHeader h3 {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: white;
+}
+
+.activityFeedList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.feedEvent {
+  display: flex;
+  gap: 12px;
+  position: relative;
+}
+
+.feedEvent::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: -22px;
+  width: 1px;
+  background-color: var(--border-color);
+}
+
+.feedEvent:last-child::after {
+  display: none;
+}
+
+.feedLineDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background-color: var(--bg-sidebar);
+  border: 2px solid var(--primary-hover);
+  flex-shrink: 0;
+  margin-top: 3px;
+  z-index: 2;
+}
+
+.feedEventContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.feedEventTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.eventName {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.eventTime {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.eventFile {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.eventMetadata {
+  margin: 4px 0 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+
+/* Operations Guide */
+.operationsGuide {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+}
+
+.operationsGuide h4 {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.guideLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guideLinkBtn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-align: left;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.guideLinkBtn:hover {
+  color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dashboardSplitGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
