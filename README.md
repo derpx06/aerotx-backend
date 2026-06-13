@@ -39,27 +39,27 @@ AeroTx processes raw financial transaction CSV files through a fully automated, 
 
 ```mermaid
 flowchart TD
-    Browser["⚛️ React Frontend\nVite · TypeScript · CSS Modules"]
+    Browser["React Frontend\nVite / TypeScript"]
 
-    subgraph Delivery ["Delivery Layer"]
-        API["🚀 FastAPI\nport 8000"]
-        Flower["🌸 Flower\nport 5555"]
+    subgraph Delivery ["Delivery"]
+        API["FastAPI\nport 8000"]
+        Flower["Flower\nport 5555"]
     end
 
     subgraph Workers ["Celery Workers"]
         direction TB
-        PW["⚙️ processing_worker\nprocessing_queue"]
-        LW["🤖 llm_worker\nllm_queue"]
-        RW["📊 reporting_worker\nreporting_queue"]
+        PW["processing_worker\nprocessing_queue"]
+        LW["llm_worker\nllm_queue"]
+        RW["reporting_worker\nreporting_queue"]
     end
 
-    subgraph Storage ["Persistence"]
-        DB[("🐘 PostgreSQL 16")]
-        Redis[("⚡ Redis 7\nbroker + cache")]
-        Files["📁 S3 / Local Volume\nCSV uploads"]
+    subgraph Persistence ["Storage"]
+        DB[("PostgreSQL 16")]
+        Redis[("Redis 7\nbroker + cache")]
+        Files["S3 / Local Volume\nCSV uploads"]
     end
 
-    Bedrock["☁️ Amazon Bedrock\nnova-micro / claude-haiku"]
+    Bedrock["Amazon Bedrock\nnova-micro / claude-haiku"]
 
     Browser -->|REST + JSON| API
     API -->|enqueue processing_queue| Redis
@@ -72,7 +72,7 @@ flowchart TD
     PW -->|enqueue llm_queue| Redis
 
     Redis --> LW
-    LW -->|converse API| Bedrock
+    LW -->|Converse API| Bedrock
     LW --> DB
     LW -->|enqueue reporting_queue| Redis
 
@@ -109,66 +109,23 @@ backend/app/
 
 ---
 
-## Processing Pipeline
+## Request Flow
 
 ```mermaid
-sequenceDiagram
-    participant C as Client
-    participant A as FastAPI
-    participant R as Redis
-    participant P as processing_worker
-    participant L as llm_worker
-    participant W as reporting_worker
-    participant B as Amazon Bedrock
-    participant DB as PostgreSQL
-
-    C->>A: POST /jobs/upload (multipart CSV)
-    A->>A: SHA-256 checksum dedup check
-    A->>DB: INSERT job (status=PENDING)
-    A->>DB: publish JobCreated + FileUploaded events
-    A->>R: enqueue → processing_queue
-    A-->>C: 202 { job_id, status: PENDING }
-
-    Note over P: processing_worker picks up task
-    P->>DB: UPDATE job → PROCESSING
-    P->>P: FileValidationStage — schema + file existence checks
-    P->>P: CleaningStage — stream CSV, normalize, dedupe fingerprints
-    P->>DB: bulk INSERT transactions
-    P->>P: RiskStage — run 4 detectors, compute composite score
-    P->>DB: bulk INSERT risk_signals
-    P->>DB: UPDATE job → LLM_PROCESSING
-    P->>R: enqueue → llm_queue
-
-    Note over L: llm_worker picks up task
-    L->>B: converse() — batch merchant classification
-    B-->>L: JSON { categories }
-    L->>DB: UPDATE transaction.category in bulk
-    L->>B: converse() — narrative summary generation
-    B-->>L: JSON { narrative, risk_level }
-    L->>DB: UPDATE job → REPORTING
-    L->>R: enqueue → reporting_queue
-
-    Note over W: reporting_worker picks up task
-    W->>DB: SQL aggregates — spend by category/currency, top merchants
-    W->>DB: INSERT job_summary
-    W->>DB: UPDATE job → COMPLETED
-
-    C->>A: GET /jobs/{id}
-    A->>DB: SELECT job + job_summary
-    A-->>C: 200 { job, summary }
+flowchart LR
+    Upload["POST /jobs/upload\nCSV file"] --> Dedup["SHA-256 dedup check"]
+    Dedup --> JobCreate["INSERT job\nstatus = PENDING"]
+    JobCreate --> Queue1["Redis\nprocessing_queue"]
+    Queue1 --> Clean["Validate + Clean\nstream CSV, normalize rows"]
+    Clean --> Risk["Risk Scoring\n4 detectors, composite score"]
+    Risk --> Persist["Bulk INSERT\ntransactions + risk_signals"]
+    Persist --> Queue2["Redis\nllm_queue"]
+    Queue2 --> Classify["Bedrock\nbatch classify merchants"]
+    Classify --> Narrative["Bedrock\ngenerate narrative summary"]
+    Narrative --> Queue3["Redis\nreporting_queue"]
+    Queue3 --> Report["SQL aggregates\nINSERT job_summary"]
+    Report --> Done["job status = COMPLETED"]
 ```
-
-### Pipeline Stages (`services/job/stages.py`)
-
-| Stage | Class | Output |
-|-------|-------|--------|
-| 1 | `FileValidationStage` | Validates file exists, resolves storage path |
-| 2 | `CleaningStage` | Streams CSV, normalizes rows, writes `cleaning_result` to context |
-| 3 | `PersistenceStage` | Bulk inserts transactions with SHA-256 fingerprints |
-| 4 | `RiskStage` | Runs `RiskEngine`, bulk inserts `risk_signals` |
-| 5 | `ClassificationStage` | Bedrock batch classify → update `transaction.category` |
-| 6 | `SummaryStage` | Bedrock narrative → insert `job_summary` |
-| 7 | `ReportingStage` | SQL aggregates → finalize `job_summary`, mark COMPLETED |
 
 ---
 
