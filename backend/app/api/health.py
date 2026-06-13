@@ -1,4 +1,4 @@
-import httpx
+import boto3
 from fastapi import APIRouter, Depends
 from redis.asyncio import Redis
 from sqlalchemy import text
@@ -27,7 +27,7 @@ async def ready(session: AsyncSession = Depends(get_session)) -> dict:
         "postgresql": await _check_postgresql(session),
         "redis": await _check_redis(),
         "workers": _check_workers(),
-        "gemini": await _check_gemini(),
+        "bedrock": _check_bedrock(),
     }
     status = "ok" if checks["postgresql"] and checks["redis"] else "degraded"
     return {"status": status, "checks": checks}
@@ -56,13 +56,22 @@ def _check_workers() -> bool:
         return False
 
 
-async def _check_gemini() -> bool:
+def _check_bedrock() -> bool:
+    """
+    Verify that AWS credentials are resolvable and the Bedrock Runtime endpoint
+    is reachable. Does NOT call invoke_model to avoid costs on health checks.
+    """
     settings = get_settings()
-    if not settings.gemini_api_key:
-        return False
     try:
-        async with httpx.AsyncClient(timeout=2.0) as client:
-            response = await client.get("https://generativelanguage.googleapis.com")
-        return response.status_code < 500
-    except httpx.HTTPError:
+        kwargs: dict = {"region_name": settings.aws_region}
+        if settings.aws_access_key_id:
+            kwargs["aws_access_key_id"] = settings.aws_access_key_id
+        if settings.aws_secret_access_key:
+            kwargs["aws_secret_access_key"] = settings.aws_secret_access_key
+
+        # list_foundation_models is free and confirms creds + endpoint reachability
+        client = boto3.client("bedrock", **kwargs)
+        client.list_foundation_models(byOutputModality="TEXT")
+        return True
+    except Exception:
         return False

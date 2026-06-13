@@ -4,7 +4,6 @@ import {
   ShieldCheck, 
   Sparkles, 
   Cpu, 
-  Settings, 
   AlertTriangle, 
   Layers, 
   Activity, 
@@ -33,13 +32,7 @@ interface LandingPageProps {
 
 export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
   const [isHealthy, setIsHealthy] = useState<boolean | null>(null);
-  const [clientId, setClientId] = useState(
-    localStorage.getItem('aerotx_google_client_id') || 
-    import.meta.env.VITE_GOOGLE_CLIENT_ID || 
-    '827464019253-dummyclientid.apps.googleusercontent.com'
-  );
-  const [showSettings, setShowSettings] = useState(false);
-  const [tempClientId, setTempClientId] = useState(clientId);
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
   const [clientInitError, setClientInitError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -126,12 +119,6 @@ export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
     };
   }, [clientId, user, onLogin, onLaunch]);
 
-  const saveClientId = () => {
-    localStorage.setItem('aerotx_google_client_id', tempClientId);
-    setClientId(tempClientId);
-    setShowSettings(false);
-    setClientInitError(null);
-  };
 
   const scrollToLogin = () => {
     document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -165,35 +152,6 @@ export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
         </div>
       </header>
 
-      {/* Settings Panel Gear */}
-      {!user && (
-        <div className={styles.settingsWrapper}>
-          <button 
-            className={styles.settingsToggle}
-            onClick={() => setShowSettings(!showSettings)}
-            title="Configure Google OAuth Client ID"
-          >
-            <Settings size={16} />
-          </button>
-
-          {showSettings && (
-            <div className={styles.settingsPanel}>
-              <h4>OAuth Client Settings</h4>
-              <p>Configure a custom Google Client ID for local login testing:</p>
-              <input 
-                type="text" 
-                value={tempClientId} 
-                onChange={(e) => setTempClientId(e.target.value)}
-                placeholder="Google OAuth Client ID"
-              />
-              <div className={styles.settingsActions}>
-                <button className={styles.settingsSave} onClick={saveClientId}>Save & Reconnect</button>
-                <button className={styles.settingsCancel} onClick={() => setShowSettings(false)}>Cancel</button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* 1. HERO SECTION */}
       <section className={styles.heroSection}>
@@ -343,7 +301,7 @@ export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
           <div className={styles.metricBox}>
             <div className={styles.metricNumber}>LLM</div>
             <div className={styles.metricTitle}>Classification Engine</div>
-            <div className={styles.metricDesc}>High-speed transaction narratives powered by Google Gemini API.</div>
+            <div className={styles.metricDesc}>High-speed transaction narratives powered by Amazon Bedrock AI models.</div>
           </div>
         </div>
       </section>
@@ -387,7 +345,7 @@ export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
           <div className={styles.pipelineNode}>
             <div className={styles.nodeIcon}><Sparkles size={18} /></div>
             <div className={styles.nodeTitle}>AI Inference</div>
-            <div className={styles.nodeSubtitle}>Gemini classification</div>
+            <div className={styles.nodeSubtitle}>Bedrock classification</div>
           </div>
           <div className={styles.pipelineArrow}><ChevronRight size={14} /></div>
 
@@ -432,7 +390,7 @@ export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
           <div className={styles.capCard}>
             <div className={styles.capIcon}><Sparkles size={20} /></div>
             <h4>AI Narrative Classification</h4>
-            <p>Generates context-rich merchant categorizations and high-level transaction summary reports using prompt-optimized LLM pipelines.</p>
+            <p>Generates context-rich merchant categorizations and high-level transaction summary reports using prompt-optimized Amazon Bedrock LLM pipelines.</p>
           </div>
           <div className={styles.capCard}>
             <div className={styles.capIcon}><LineChart size={20} /></div>
@@ -486,9 +444,9 @@ export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
           <div className={styles.techBox}>
             <div className={styles.techHeader}>
               <Sparkles size={18} className={styles.techIcon} />
-              <h4>Gemini AI</h4>
+              <h4>Amazon Bedrock</h4>
             </div>
-            <p>Large language model orchestration with fallback circuit breakers. Classifies categories and writes human-readable summaries.</p>
+            <p>Serverless large language model inference via AWS Bedrock. Runs Nova and Claude models with circuit-breaker fallback and automatic retry logic.</p>
           </div>
           <div className={styles.techBox}>
             <div className={styles.techHeader}>
@@ -539,7 +497,7 @@ export const LandingPage = ({ user, onLogin, onLaunch }: LandingPageProps) => {
                 {clientInitError && (
                   <div className={styles.oauthError}>
                     <AlertTriangle size={14} />
-                    <span>{clientInitError} (Click Settings gear at top right)</span>
+                    <span>{clientInitError} Check that VITE_GOOGLE_CLIENT_ID is set correctly.</span>
                   </div>
                 )}
 

@@ -131,7 +131,7 @@ export const api = {
 
   // Check backend health status
   getHealth: () => {
-    return request<{ status: string; checks?: { postgresql?: boolean; redis?: boolean; workers?: boolean; gemini?: boolean } }>('/health');
+    return request<{ status: string; checks?: { postgresql?: boolean; redis?: boolean; workers?: boolean; bedrock?: boolean } }>('/health');
   },
 
   // Get operational metrics snapshot

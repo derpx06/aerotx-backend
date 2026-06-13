@@ -43,8 +43,12 @@ class CircuitBreaker:
                 self.opened_at = datetime.now(UTC)
 
 
-_gemini_breaker = CircuitBreaker()
+_llm_breaker = CircuitBreaker()
 
 
-def get_gemini_circuit_breaker() -> CircuitBreaker:
-    return _gemini_breaker
+def get_llm_circuit_breaker() -> CircuitBreaker:
+    return _llm_breaker
+
+
+# Backwards-compat alias (will be removed in future)
+get_gemini_circuit_breaker = get_llm_circuit_breaker

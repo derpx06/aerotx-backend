@@ -22,9 +22,15 @@ class Settings(BaseSettings):
     )
     redis_url: str = Field(default="redis://redis:6379/0", validation_alias="REDIS_URL")
 
-    gemini_api_key: str | None = Field(default=None, validation_alias="GEMINI_API_KEY")
-    gemini_model: str = "gemini-1.5-flash"
-    llm_timeout_seconds: float = 20.0
+    # Amazon Bedrock / AWS settings
+    aws_access_key_id: str | None = Field(default=None, validation_alias="AWS_ACCESS_KEY_ID")
+    aws_secret_access_key: str | None = Field(default=None, validation_alias="AWS_SECRET_ACCESS_KEY")
+    aws_region: str = Field(default="us-east-1", validation_alias="AWS_REGION")
+    bedrock_model_id: str = Field(
+        default="amazon.nova-micro-v1:0",
+        validation_alias="BEDROCK_MODEL_ID",
+    )
+    llm_timeout_seconds: float = 30.0
     llm_max_retries: int = 4
 
     upload_max_bytes: int = 100 * 1024 * 1024
