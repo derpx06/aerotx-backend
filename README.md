@@ -111,20 +111,70 @@ backend/app/
 
 ## Request Flow
 
+> Full editable diagram: [docs/architecture.drawio](docs/architecture.drawio) — open with [draw.io](https://app.diagrams.net)
+
 ```mermaid
 flowchart LR
-    Upload["POST /jobs/upload\nCSV file"] --> Dedup["SHA-256 dedup check"]
-    Dedup --> JobCreate["INSERT job\nstatus = PENDING"]
-    JobCreate --> Queue1["Redis\nprocessing_queue"]
-    Queue1 --> Clean["Validate + Clean\nstream CSV, normalize rows"]
-    Clean --> Risk["Risk Scoring\n4 detectors, composite score"]
-    Risk --> Persist["Bulk INSERT\ntransactions + risk_signals"]
-    Persist --> Queue2["Redis\nllm_queue"]
-    Queue2 --> Classify["Bedrock\nbatch classify merchants"]
-    Classify --> Narrative["Bedrock\ngenerate narrative summary"]
-    Narrative --> Queue3["Redis\nreporting_queue"]
-    Queue3 --> Report["SQL aggregates\nINSERT job_summary"]
-    Report --> Done["job status = COMPLETED"]
+    subgraph CL ["Client Layer"]
+        User["User"]
+    end
+
+    subgraph AOL ["API & Orchestration Layer"]
+        FastAPI["FastAPI API"]
+        Orch["Job Orchestration Service"]
+    end
+
+    subgraph APL ["Async Processing Layer"]
+        Redis[("Redis Queue")]
+        Workers["Celery Worker Pool"]
+    end
+
+    subgraph TIP ["Transaction Intelligence Pipeline"]
+        Clean["Validation & Cleaning"]
+        Dedup["Deduplication"]
+        Risk["Risk Detection"]
+        Classify["AI Classification"]
+        Summary["AI Summary Generation"]
+    end
+
+    subgraph AIP ["AI Platform"]
+        Bedrock["AWS Bedrock"]
+    end
+
+    subgraph DL ["Data Layer"]
+        DB_Jobs[("Jobs")]
+        DB_Txns[("Transactions")]
+        DB_Risk[("Risk Signals")]
+        DB_Sum[("Job Summaries")]
+        DB_TL[("Timeline Events")]
+    end
+
+    User --> FastAPI
+    FastAPI --> Orch
+    FastAPI --> DB_Jobs
+    FastAPI --> DB_Txns
+    FastAPI --> DB_Sum
+    FastAPI --> DB_TL
+
+    Orch --> DB_Jobs
+    Orch --> Redis
+
+    Redis --> Workers
+    Workers --> Clean
+    Clean --> Dedup
+    Clean --> DB_TL
+    Dedup --> Risk
+    Dedup --> DB_TL
+    Risk --> Classify
+    Risk --> DB_Txns
+    Risk --> DB_Risk
+    Risk --> DB_TL
+
+    Classify <-->|converse| Bedrock
+    Classify --> Summary
+    Classify --> DB_TL
+    Summary --> DB_Sum
+    Summary --> DB_TL
 ```
 
 ---
