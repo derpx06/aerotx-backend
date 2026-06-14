@@ -4,6 +4,9 @@ from collections import Counter
 
 from app.core.database import SessionLocal
 from app.models.transaction import Transaction
+from app.models.job import Job  # noqa: F401
+from app.models.event import JobEvent  # noqa: F401
+from app.models.summary import JobSummary  # noqa: F401
 
 async def check():
     async with SessionLocal() as session:
