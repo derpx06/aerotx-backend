@@ -16,10 +16,15 @@ def create_app() -> FastAPI:
     app = FastAPI(title=settings.app_name, version="0.1.0")
     instrument_app(app)
     app.middleware("http")(request_context_middleware)
+    origins = settings.cors_origins
+    allow_credentials = True
+    if "*" in origins or not origins:
+        allow_credentials = False
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=True,
+        allow_origins=origins,
+        allow_credentials=allow_credentials,
         allow_methods=["*"],
         allow_headers=["*"],
     )
