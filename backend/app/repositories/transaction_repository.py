@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.risk_signal import RiskSignal
 from app.models.transaction import Transaction
+from app.models.enums import RiskLevel
 
 
 class TransactionRepository:
