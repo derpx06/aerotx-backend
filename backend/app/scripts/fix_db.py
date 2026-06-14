@@ -3,7 +3,8 @@ from sqlalchemy import select, delete
 from collections import defaultdict
 
 from app.core.database import SessionLocal
-from app.models.transaction import Transaction, RiskSignal
+from app.models.transaction import Transaction
+from app.models.risk_signal import RiskSignal
 from app.services.risk.detectors import MedianDetector, CurrencyDetector, DuplicateDetector, NotesDetector
 from app.services.risk.scoring import RiskAggregator
 from app.services.cleaning.engine import CleanTransaction
