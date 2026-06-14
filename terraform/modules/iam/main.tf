@@ -5,7 +5,7 @@ resource "aws_secretsmanager_secret" "app_secrets" {
 resource "aws_secretsmanager_secret_version" "app_secrets_placeholder" {
   secret_id     = aws_secretsmanager_secret.app_secrets.id
   secret_string = jsonencode({
-    GEMINI_API_KEY = "placeholder-replace-me-in-aws-console"
+    GEMINI_API_KEY = "AIzaSyAIsYx_vUJvlwPGDPHmuMsjLDPtbTTEdlU"
   })
 
   # Prevent overwriting the key's value if the user updates it manually via the console/CLI
@@ -98,4 +98,27 @@ resource "aws_iam_policy" "s3_access_policy" {
 resource "aws_iam_role_policy_attachment" "ecs_task_s3" {
   role       = aws_iam_role.ecs_task_role.name
   policy_arn = aws_iam_policy.s3_access_policy.arn
+}
+
+resource "aws_iam_policy" "bedrock_access_policy" {
+  name = "${var.project_name}-bedrock-access-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream",
+          "bedrock:ListFoundationModels"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_bedrock" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.bedrock_access_policy.arn
 }

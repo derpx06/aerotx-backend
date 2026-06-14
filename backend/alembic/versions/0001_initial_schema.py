@@ -18,7 +18,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 job_status = postgresql.ENUM(
-    "PENDING", "PROCESSING", "LLM_PROCESSING", "REPORTING", "COMPLETED", "FAILED", name="jobstatus"
+    "PENDING", "PROCESSING", "LLM_PROCESSING", "REPORTING", "COMPLETED", "FAILED", name="jobstatus", create_type=False
 )
 job_event_type = postgresql.ENUM(
     "JOB_CREATED",
@@ -36,12 +36,44 @@ job_event_type = postgresql.ENUM(
     "JOB_COMPLETED",
     "JOB_FAILED",
     name="jobeventtype",
+    create_type=False
 )
 
 
 def upgrade() -> None:
-    job_status.create(op.get_bind(), checkfirst=True)
-    job_event_type.create(op.get_bind(), checkfirst=True)
+    op.execute("""
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'jobstatus') THEN
+            CREATE TYPE jobstatus AS ENUM ('PENDING', 'PROCESSING', 'LLM_PROCESSING', 'REPORTING', 'COMPLETED', 'FAILED');
+        END IF;
+    END
+    $$;
+    """)
+    op.execute("""
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'jobeventtype') THEN
+            CREATE TYPE jobeventtype AS ENUM (
+                'JOB_CREATED',
+                'FILE_UPLOADED',
+                'VALIDATION_STARTED',
+                'VALIDATION_COMPLETED',
+                'CLEANING_STARTED',
+                'CLEANING_COMPLETED',
+                'ANOMALY_DETECTION_STARTED',
+                'ANOMALY_DETECTION_COMPLETED',
+                'CLASSIFICATION_STARTED',
+                'CLASSIFICATION_COMPLETED',
+                'SUMMARY_GENERATION_STARTED',
+                'SUMMARY_GENERATION_COMPLETED',
+                'JOB_COMPLETED',
+                'JOB_FAILED'
+            );
+        END IF;
+    END
+    $$;
+    """)
     op.create_table(
         "jobs",
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
