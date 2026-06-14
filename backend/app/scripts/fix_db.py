@@ -5,7 +5,9 @@ from collections import defaultdict
 from app.core.database import SessionLocal
 from app.models.transaction import Transaction
 from app.models.risk_signal import RiskSignal
-from app.models.job import Job  # Required by SQLAlchemy for mapping
+from app.models.job import Job  # noqa: F401
+from app.models.event import JobEvent  # noqa: F401
+from app.models.summary import JobSummary  # noqa: F401
 from app.services.risk.detectors import MedianDetector, CurrencyDetector, DuplicateDetector, NotesDetector
 from app.services.risk.scoring import RiskAggregator
 from app.services.cleaning.engine import CleanTransaction
