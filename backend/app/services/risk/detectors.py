@@ -85,6 +85,8 @@ class CurrencyDetector:
                 "swiggy",
                 "ola",
                 "irctc",
+                "zomato",
+                "makemytrip",
             )
         )
 
