@@ -36,7 +36,7 @@ async def fix_all():
             
         # Prepare clean transactions for detectors
         clean_txs = []
-        tx_map = {}
+        tx_map = defaultdict(list)
         for tx in txs:
             ctx = CleanTransaction(
                 txn_id=tx.txn_id,
@@ -52,7 +52,7 @@ async def fix_all():
             clean_txs.append(ctx)
             # Use same key structure as detectors
             key = (tx.txn_id, tx.date, tx.merchant, tx.amount, tx.currency, tx.account_id)
-            tx_map[key] = tx
+            tx_map[key].append(tx)
 
         # 1. Run detectors to get all risk signals
         detectors = [
@@ -87,7 +87,7 @@ async def fix_all():
         await session.execute(delete(RiskSignal))
         
         updated_count = 0
-        for key, tx in tx_map.items():
+        for key, tx_list in tx_map.items():
             score, level, is_anomaly = scores.get(key, (0, "LOW", False))
             
             # Find anomaly reason if any
@@ -98,22 +98,29 @@ async def fix_all():
                     anomaly_reason = s.description
                     break
             
-            tx.risk_score = score
-            tx.risk_level = level
-            tx.is_anomaly = is_anomaly
-            tx.anomaly_reason = anomaly_reason
-            
-            # Create RiskSignal records
+            # Deduplicate signals by signal_type to avoid unique constraint violation
+            unique_signals = {}
             for s in tx_signals:
-                sig_model = RiskSignal(
-                    transaction_id=tx.id,
-                    signal_type=s.signal_type,
-                    signal_score=s.signal_score,
-                    description=s.description
-                )
-                session.add(sig_model)
+                if s.signal_type not in unique_signals or s.signal_score > unique_signals[s.signal_type].signal_score:
+                    unique_signals[s.signal_type] = s
+            
+            for tx in tx_list:
+                tx.risk_score = score
+                tx.risk_level = level
+                tx.is_anomaly = is_anomaly
+                tx.anomaly_reason = anomaly_reason
                 
-            updated_count += 1
+                # Create RiskSignal records
+                for s in unique_signals.values():
+                    sig_model = RiskSignal(
+                        transaction_id=tx.id,
+                        signal_type=s.signal_type,
+                        signal_score=s.signal_score,
+                        description=s.description
+                    )
+                    session.add(sig_model)
+                    
+                updated_count += 1
             
         await session.commit()
         print(f"Successfully updated {updated_count} transactions and their risk signals.")
