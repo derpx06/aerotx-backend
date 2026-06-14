@@ -149,3 +149,8 @@ select:focus-visible {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 24px;
 }
+
+select option {
+  background-color: #080c14;
+  color: #f8fafc;
+}
