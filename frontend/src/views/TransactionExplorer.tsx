@@ -15,7 +15,7 @@ import styles from './TransactionExplorer.module.css';
 
 const LIMIT = 50;
 
-const CATEGORIES = ['Travel', 'Software', 'Office Supplies', 'Entertainment', 'Shopping', 'Food & Beverage', 'Utilities', 'Uncategorised'];
+const CATEGORIES = ['Food', 'Shopping', 'Travel', 'Transport', 'Utilities', 'Cash Withdrawal', 'Entertainment', 'Other', 'Uncategorised'];
 const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'SGD'];
 const RISK_LEVELS = ['LOW', 'MEDIUM', 'HIGH'];
 

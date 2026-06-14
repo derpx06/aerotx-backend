@@ -33,4 +33,5 @@ class TransactionRead(BaseModel):
     risk_level: RiskLevel
     llm_category: str | None = None
     llm_failed: bool = False
+    notes: str | None = None
     risk_signals: list[RiskSignalRead] = []

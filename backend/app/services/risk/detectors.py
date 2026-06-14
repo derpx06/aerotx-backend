@@ -97,6 +97,9 @@ class NotesDetector:
         "gift card",
         "refund reversal",
         "manual override",
+        "suspicious",
+        "duplicate",
+        "refund",
     }
 
     def detect(self, transactions: list[CleanTransaction]) -> list[RiskSignalDTO]:
